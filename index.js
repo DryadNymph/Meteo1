@@ -53,38 +53,45 @@ function handleSearchSubmit(event) {
 
   searchCity(searchInput.value);
 }
+function formatDay(timestamp) {
+  let date = new Date(timestamp * 1000);
+  let days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  return days[date.getDay()];
+}
+
 function getForecast(city) {
   let apiKey = "6efd3f0da2o6441fbf2ft79c33ad8304";
   let apiUrl = `https://api.shecodes.io/weather/v1/forecast?query=${city}&key=${apiKey}&units=metric`;
   axios(apiUrl).then(displayForecast);
-  console.log(apiUrl);
 }
 
 function displayForecast(response) {
-  console.log(response.data);
-
-  let days = ["Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   let forecastHtml = "";
 
-  days.forEach(function (day) {
-    forecastHtml =
-      forecastHtml +
-      `
+  response.data.daily.forEach(function (day, index) {
+    if (index < 5) {
+      forecastHtml =
+        forecastHtml +
+        `
   <div class="weather-forecast">
           <div class="row">
             <div class="col-2">
-              <div class="weather-forcast-date">${day}</div>
-              <img
-                src="http://openweathermap.org/img/wn/50d@2x.png"
-                alt=""
-                width="42"
-              />
+              <div class="weather-forcast-date">${formatDay(day.time)}</div>
+              <div class="weather-forecast-icon">
+              <img src="${day.condition.icon_url}" />
+              </div>
               <div class="weather-forecast-temperature">
-                <span class="weather-forecast-temperature-max"> 18° </span>
-                <span class="weather-forcast-temperature-min"> 12° </span>
+                <span class="weather-forecast-temperature-max"> ${Math.round(
+                  day.temperature.maximum
+                )}° </span>
+                <span class="weather-forcast-temperature-min"> ${Math.round(
+                  day.temperature.minimum
+                )}° </span>
               </div>
             </div>
 `;
+    }
   });
   let forecastElement = document.querySelector("#forecast");
   forecastElement.innerHTML = forecastHtml;
